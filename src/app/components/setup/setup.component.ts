@@ -63,7 +63,7 @@ export class SetupComponent implements OnInit, OnDestroy {
         }
 
         const formControl = new FormControl(value);
-        const controlName = group.label + '_' + input.id;
+        const controlName = group.id + '_' + input.id;
 
         this.setValidatorsToInput(formControl, input);
 
@@ -104,23 +104,22 @@ export class SetupComponent implements OnInit, OnDestroy {
   private setValidatorsToInput(formControl: FormControl, input: any) {
     const validators = [];
     const config = input.validators;
+    if (!config) {
+      return;
+    }
 
-    for (const key in config) {
-      if (!config.hasOwnProperty(key)) {
-        continue;
-      }
-
-      switch (key) {
+    for (const validator of config) {
+      switch (validator.name) {
         case 'required':
           validators.push(Validators.required);
           break;
         case 'numbers':
-          validators.push(Validators.min(config[key].min));
-          validators.push(Validators.max(config[key].max));
+          validators.push(Validators.min(validator.constraint.min));
+          validators.push(Validators.max(validator.constraint.max));
           validators.push(isNumberValidator);
           break;
         case 'regex':
-          validators.push(Validators.pattern(config[key]));
+          validators.push(Validators.pattern(validator.constraint));
           break;
       }
     }
